@@ -141,6 +141,12 @@ def update_total_usage(
         return None
 
     response_usage = getattr(response, "usage", None)
+
+    # Litellm response with custom cached tokens attrs
+    # https://github.com/BerriAI/litellm/issues/5285
+    if hasattr(response_usage, "cache_creation_input_tokens") and hasattr(response_usage, "cache_read_input_tokens"):
+        return response
+
     if isinstance(response_usage, OpenAIUsage) and isinstance(total_usage, OpenAIUsage):
         total_usage.completion_tokens += response_usage.completion_tokens or 0
         total_usage.prompt_tokens += response_usage.prompt_tokens or 0
